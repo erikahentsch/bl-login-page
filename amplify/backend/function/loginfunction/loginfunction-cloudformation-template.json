@@ -69,7 +69,7 @@
         "Timeout": "25",
         "Code": {
           "S3Bucket": "amplify-blloginpage-dev-121629-deployment",
-          "S3Key": "amplify-builds/loginfunction-4f4e4c616557364c4f4f-build.zip"
+          "S3Key": "amplify-builds/loginfunction-74796b53476b566c4b50-build.zip"
         }
       }
     },

@@ -12,6 +12,37 @@ See the License for the specific language governing permissions and limitations 
 var express = require('express')
 var bodyParser = require('body-parser')
 var awsServerlessExpressMiddleware = require('aws-serverless-express/middleware')
+var mysql = require('mysql');
+var pbkdf2 = require('pbkdf2')
+
+const SaltByteSize = 16;
+const HashByteSize = 20; // to match the size of the PBKDF2-HMAC-SHA-1 hash (bigger won't be better)
+const Pbkdf2Iterations = 10000;
+
+const VersionIndex = 0;
+const IterationIndex = 1;
+const SaltIndex = 2;
+const Pbkdf2Index = 3;
+const delimiter = ';';
+
+
+var db = mysql.createConnection({
+  host: 'blcloud001.cvz4tk8yder9.us-east-1.rds.amazonaws.com',
+  // host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'bl$oftDB2174',
+  database: 'chameleon'
+});
+
+db.connect((err)=>{
+  if (err) {
+    throw err;
+  }
+  console.log('connected to database')
+})
+
+
 
 // declare a new express app
 var app = express()
@@ -31,56 +62,40 @@ app.use(function(req, res, next) {
  **********************/
 
 app.get('/login', function(req, res) {
-  // Add your code here
-  res.json({success: 'get call succeed!', url: req.url, message: 'you logged in!'});
+
+  res.json({message: 'add username/password paramaters'})
 });
 
-app.get('/login/*', function(req, res) {
+app.get('/login/:username/:password', function(req, res) {
   // Add your code here
-  res.json({success: 'get call succeed!', url: req.url});
+  let username = req.params.username;
+  let password = req.params.password;
+  // console.log(req.params)
+  var isValid = false
+  var isUser = true
+  db.query(
+    `SELECT usr_password FROM sr_users
+    WHERE usr_username = "${username}"; `, function(error, results, fields) {
+      if (error || results.length === 0) {
+        console.log('error', error)
+        res.json({success: 'get dbdata', validUser: false, validPassword: isValid})
+      } else {
+        let correctHash = results[0].usr_password
+        var split = correctHash.split(delimiter);
+        var version = parseInt(split[VersionIndex].substring(1))
+        var iterations = parseInt(split[IterationIndex]);
+        var salt = Buffer.from(split[SaltIndex], 'base64');
+        var hash = Buffer.from(split[Pbkdf2Index], 'base64')
+        if (version == 1) {
+          var testHash = pbkdf2.pbkdf2Sync(password, salt, iterations, hash.length)
+          isValid = Buffer.compare(hash, testHash) === 0
+        }
+        res.json({success: 'get dbdata', validUser: true, validPassword: isValid})
+      }
+    }
+  )
 });
 
-/****************************
-* Example post method *
-****************************/
-
-app.post('/login', function(req, res) {
-  // Add your code here
-  res.json({success: 'post call succeed!', url: req.url, body: req.body})
-});
-
-app.post('/login/*', function(req, res) {
-  // Add your code here
-  res.json({success: 'post call succeed!', url: req.url, body: req.body})
-});
-
-/****************************
-* Example put method *
-****************************/
-
-app.put('/login', function(req, res) {
-  // Add your code here
-  res.json({success: 'put call succeed!', url: req.url, body: req.body})
-});
-
-app.put('/login/*', function(req, res) {
-  // Add your code here
-  res.json({success: 'put call succeed!', url: req.url, body: req.body})
-});
-
-/****************************
-* Example delete method *
-****************************/
-
-app.delete('/login', function(req, res) {
-  // Add your code here
-  res.json({success: 'delete call succeed!', url: req.url});
-});
-
-app.delete('/login/*', function(req, res) {
-  // Add your code here
-  res.json({success: 'delete call succeed!', url: req.url});
-});
 
 app.listen(3000, function() {
     console.log("App started")

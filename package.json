@@ -9,6 +9,9 @@
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.5.0",
     "aws-amplify": "^3.3.11",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.6",
+    "pbkdf2": "^3.1.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.1",
@@ -18,7 +21,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test:server": "cd amplify/backend/function/loginfunction/src && nodemon app"
   },
   "eslintConfig": {
     "extends": [

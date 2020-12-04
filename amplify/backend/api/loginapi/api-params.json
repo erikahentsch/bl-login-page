@@ -5,8 +5,7 @@
             "lambdaFunction": "loginfunction",
             "privacy": {
                 "open": true
-            },
-            "policyResourceName": "/login"
+            }
         }
     ],
     "resourceName": "loginapi",
@@ -31,5 +30,6 @@
                 "Arn"
             ]
         }
-    ]
+    ],
+    "uuid": "385bca9b"
 }
