@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/login",
+            "lambdaFunction": "loginfunction",
+            "privacy": {
+                "open": true
+            },
+            "policyResourceName": "/login"
+        }
+    ],
+    "resourceName": "loginapi",
+    "apiName": "loginapi",
+    "functionArns": [
+        {
+            "lambdaFunction": "loginfunction"
+        }
+    ],
+    "privacy": {
+        "auth": 0,
+        "unauth": 0,
+        "authRoleName": "amplify-blloginpage-dev-121629-authRole",
+        "unAuthRoleName": "amplify-blloginpage-dev-121629-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "loginfunction",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}
