@@ -1,22 +1,33 @@
+import React, {useEffect, useState} from 'react'
+
 import logo from './logo.svg';
 import './App.css';
+import {API} from 'aws-amplify'
 
-function App() {
+const App = () => {
+  const [connection, toggleConnection] = useState(null) 
+  async function callApi(username, password) {
+    try { 
+      const loginData = await API.get('loginapi', `/login`)
+      toggleConnection(loginData)
+    } catch(err) {
+      console.log(err)
+    }
+  }
+
+  useEffect(()=>{
+    callApi()
+  }, [])
+
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+       {connection && <div>
+         Connected to the API!
+       </div>
+
+       }
       </header>
     </div>
   );
