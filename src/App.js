@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react'
 import {makeStyles, Button, Paper, FormControl, InputAdornment, IconButton, InputLabel, FormHelperText, OutlinedInput} from '@material-ui/core'
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import banner from './banner.png'
+import branding from './companyLogo.png'
 
 import './App.css';
 import {API} from 'aws-amplify'
@@ -12,9 +14,24 @@ const styles = makeStyles({
     display: 'flex', 
     justifyContent: 'center'
   },
+  banner: {
+    textAlign: 'center',
+    width: '100%',
+    maxWidth: 800,
+    position: 'absolute',
+    top: 0,
+    backgroundColor: '#1a1a1a',
+    '& img': {
+      maxWidth: '100%'
+    }
+  },
   paper: {
-    width: 500,
-    padding: 30
+    maxWidth: 500,
+    padding: '2vmax',
+  },
+  title: {
+    fontSize: '24px',
+    paddingBottom: 15,
   },
   textFieldContainer: {
     display: 'flex',
@@ -23,6 +40,16 @@ const styles = makeStyles({
   textField: {
     paddingBottom:10
   },
+  branding: {
+    position: 'absolute', 
+    bottom: 0,
+    width: '100%',
+    maxWidth: 800,
+    textAlign: 'right',
+    '& img': {
+      maxWidth: '40%'
+    }
+  }
 })
 
 const App = () => {
@@ -92,17 +119,22 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
+        <div className={classes.banner}>
+          <img  src={banner} />
+        </div>
        {connection && (loggedIn ? 
           <div>
             <Paper elevation={3} className={classes.paper}>
-            
-              Successfully Logged In!
+              <div className={classes.title}>
+                Successfully Logged In!
+              </div>
               <Button variant="contained" color="secondary" onClick={handleLogOut}>Log Out</Button>
             </Paper>
           </div>
           :
             <Paper elevation={3} className={classes.paper}>
             <form>
+              <div className={classes.title}>Log-in to continue</div>
               <div className={classes.textFieldContainer}>
               <FormControl error={values.usernameerror !== ''} className={ classes.textField} variant="outlined">
                 <InputLabel htmlFor="username-textfield">Username</InputLabel>
@@ -140,9 +172,12 @@ const App = () => {
                 <FormHelperText>{values.passworderror}</FormHelperText>
               </FormControl>
               </div>
-              <Button color="primary" variant="contained" type="submit" onClick={handleSubmit}>Submit</Button>
+              <Button color="primary" variant="contained" type="submit" onClick={handleSubmit}>Log In</Button>
               </form>
        </Paper>)}
+       <div className={classes.branding}>
+          <img src={branding}/>
+       </div>
       </header>
     </div>
   );
