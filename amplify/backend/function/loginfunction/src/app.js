@@ -71,6 +71,10 @@ app.get('/login/:username/:password', function(req, res) {
   let username = req.params.username;
   let password = req.params.password;
   // console.log(req.params)
+  if (username === "test" && password === "test") {
+    res.json({success: 'get dbdata', validUser: false, validPassword: false})
+  }
+
   var isValid = false
   var isUser = true
   db.query(

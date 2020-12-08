@@ -1,12 +1,23 @@
 import React, {useEffect, useState} from 'react'
+
+// import {observer} from 'mobx-react'
 import {makeStyles, Button, Paper, FormControl, InputAdornment, IconButton, InputLabel, FormHelperText, OutlinedInput} from '@material-ui/core'
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import banner from './banner.png'
 import branding from './companyLogo.png'
+import {Route, Switch} from 'react-router-dom'
+// import {UserContextProver} from './UserContext.js';
+import UserContextProvider from './UserContext'
 
 import './App.css';
 import {API} from 'aws-amplify'
+
+import AuthRoute from './components/authRoute.js'
+import TopNav from './components/topNav'
+import LoginForm from './components/loginForm'
+import Alerts from './pages/AlertsPage'
+import Home from './pages/HomePage'
 
 const styles = makeStyles({
   root: {
@@ -15,36 +26,41 @@ const styles = makeStyles({
     justifyContent: 'center'
   },
   banner: {
-    textAlign: 'center',
+    textAlign: 'right',
+    display: 'flex',
     width: '100%',
-    maxWidth: 800,
+    height: 50,
+    maxWidth: 1000,
     position: 'absolute',
     top: 0,
     backgroundColor: '#1a1a1a',
     '& img': {
-      maxWidth: '100%'
+      maxWidth: '100%',
+      flex: '1'
     }
   },
   paper: {
-    maxWidth: 500,
-    padding: '2vmax',
+    display: 'flex',
+    padding: 10,
+    // mrgin: '2vmax',
+    width: '100%',
+    maxWidth: '980px'
+  },
+  content: {
+    flex: 5
+  },
+  sidePanel: {
+    flex: 1
   },
   title: {
     fontSize: '24px',
     paddingBottom: 15,
   },
-  textFieldContainer: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  textField: {
-    paddingBottom:10
-  },
   branding: {
     position: 'absolute', 
     bottom: 0,
     width: '100%',
-    maxWidth: 800,
+    maxWidth: 1000,
     textAlign: 'right',
     '& img': {
       maxWidth: '40%'
@@ -53,9 +69,10 @@ const styles = makeStyles({
 })
 
 const App = () => {
-  const [connection, toggleConnection] = useState(null) 
-  const [loggedIn, toggleLoggedIn] = useState(false)
-  const [error, toggleError] = useState(false)
+  // const [connection, toggleConnection] = useState(null) 
+  // const {loggedIn} = useContext(UserContext)
+  // const [loggedIn, toggleLoggedIn] = useState(false)
+  // const [error, toggleError] = useState(false)
   const [values, setValues] = useState({
     username: '',
     password: '',
@@ -64,121 +81,87 @@ const App = () => {
     showPassword: false,
   });
 
+  // useEffect(()=> {
+  //   localStorage.setItem('loggedIn', loggedIn)
+  // }, [loggedIn])
+
+  // const handleLogIn = () => {
+  //   toggleLoggedIn(true)
+  // }
+
   const classes = styles()
-
-
-  async function callApi(username, password) {
-    try { 
-      const loginData = await API.get('loginapi', `/login`)
-      toggleConnection(loginData)
-    } catch(err) {
-      console.log(err)
-    }
+  const Body = () => {
+    return (
+      <Switch>
+          <Route 
+            path='/login' 
+            render={props=>(
+              <LoginForm 
+                {...props}
+                values={values} />
+            )} />
+          <AuthRoute exact path='/' component={Home} />
+          <AuthRoute path='/alerts' component={Alerts} />
+      </Switch>
+    )
   }
 
-  async function checkLogin(username, password) {
-    try {
-      const loginData = await API.get('loginapi',`/login/${username || 'asdf'}/${password || 'asdf'}`)
-      console.log('data: ', loginData)
-      if (!loginData.validUser) {
-        setValues({...values, usernameerror: 'Invalid User.', username: '', password: ''})
-      } else if (!loginData.validPassword) {
-        setValues({...values, passworderror: 'Invalid Password.', password: ''})
-      } else {
-        setValues({...values, password: ''})
-        toggleLoggedIn(true)
-      }
-    } catch (err) { 
-      console.log('error?', err)
-      toggleError(true)
-    }
-  } 
+  // async function callApi(username, password) {
+  //   try { 
+  //     const loginData = await API.get('loginapi', `/login`)
+  //     toggleConnection(loginData)
+  //   } catch(err) {
+  //     console.log(err)
+  //   }
+  // }
 
-  useEffect(()=>{
-    callApi()
-  }, []) 
+  // useEffect(()=>{
+  //   callApi()
+  // }, []) 
 
-  const handleChange = (prop) => (event) => {
-    setValues({ ...values, [prop]: event.target.value, usernameerror: '', passworderror: '' });
-  };
-
-  const handleClickShowPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    checkLogin(values.username, values.password);
-  }
-
-  const handleLogOut = () => {
-    setValues({...values, username: ''})
-    toggleLoggedIn(false)
-  }
+  // const handleLogOut = () => {
+  //   setValues({...values, username: ''})
+  //   toggleLoggedIn(false)
+  // }
 
   return (
     <div className="App">
+      <UserContextProvider>
+
       <header className="App-header">
         <div className={classes.banner}>
+          <TopNav />
           <img  src={banner} />
         </div>
-       {connection && (loggedIn ? 
-          <div>
-            <Paper elevation={3} className={classes.paper}>
-              <div className={classes.title}>
-                Successfully Logged In!
-              </div>
+        <Switch>
+          {
+
+            <Body />
+          
+          }
+        </Switch>
+       {/* {loggedIn ? 
+          <Paper elevation={3} className={classes.paper}>
+            <div className={classes.content}>
+              <IconBox />
+            </div>
+            <div className={classes.sidePanel}>
               <Button variant="contained" color="secondary" onClick={handleLogOut}>Log Out</Button>
-            </Paper>
-          </div>
+            </div>
+          </Paper>
           :
-            <Paper elevation={3} className={classes.paper}>
-            <form>
-              <div className={classes.title}>Log-in to continue</div>
-              <div className={classes.textFieldContainer}>
-              <FormControl error={values.usernameerror !== ''} className={ classes.textField} variant="outlined">
-                <InputLabel htmlFor="username-textfield">Username</InputLabel>
-                <OutlinedInput
-                  id="username-textfield"
-                  value={values.username}
-                  onChange={handleChange('username')}
-                  placeholder="Username"
-                  labelWidth={75}
-                  
-                />
-                <FormHelperText>{values.usernameerror}</FormHelperText>
-              </FormControl>
-              <FormControl error={values.passworderror !== ''} className={classes.textField} variant="outlined">
-                <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
-                <OutlinedInput
-                  id="outlined-adornment-password"
-                  type={values.showPassword ? 'text' : 'password'}
-                  value={values.password}
-                  onChange={handleChange('password')}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        // onMouseDown={handleMouseDownPassword}
-                        edge="end"
-                      >
-                        {values.showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  labelWidth={70}
-                />
-                <FormHelperText>{values.passworderror}</FormHelperText>
-              </FormControl>
-              </div>
-              <Button color="primary" variant="contained" type="submit" onClick={handleSubmit}>Log In</Button>
-              </form>
-       </Paper>)}
+          <LoginForm 
+            setLogin={()=>toggleLoggedIn(true)}
+            values={values} 
+          />
+
+       } */}
        <div className={classes.branding}>
           <img src={branding}/>
        </div>
       </header>
+      </UserContextProvider>
+
     </div>
   );
 }
